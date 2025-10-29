@@ -1,10 +1,8 @@
-<script setup>
+<script>
     // Import BlogPost component
     import blogPost from './subcomponents/BlogPost2.vue'
 	import axios from 'axios'
-</script>
 
-<script>
     export default {
         data() {
             return {
@@ -13,8 +11,8 @@
         },
         computed: {
             baseUrl() {
-                if (window.location.hostname == 'localhost')
-                    return 'http://localhost:3000'
+                if (window.location.hostname=='localhost')
+                    return 'http://localhost:3000' 
                 else {
                     const codespace_host = window.location.hostname.replace('5173', '3000')
                     return `https://${codespace_host}`;
@@ -32,9 +30,20 @@
                 this.posts = [{ entry: 'There was an error: ' + error.message }]
             })
         },
-        methods: {
-            deletePost(id) {
-                // TODO: Complete the delete method
+        components:{
+            blogPost
+        },
+        methods:{
+            async deletePost(id){
+                await axios.get(`${this.baseUrl}/deletePost`, {
+                    params:{
+                        id: id
+                    }
+                }).then(
+                    response => {
+                    // console.log(response.data)
+                    this.posts = this.posts.filter(post => post.id != id)
+                })
             }
         }
     }
@@ -42,6 +51,13 @@
 
 <template>
    <!-- TODO: make use of the 'blog-post' component to display the blog posts -->
+    <blogPost v-for="post in posts" :key="post.id"
+    :subject="post.subject" :entry="post.entry" :mood="post.mood.toLowerCase()">
+
+    <a @click="deletePost(post.id)" class="btn btn-primary">Delete</a>
+
+    </blogPost>
 
 </template>
+
 
